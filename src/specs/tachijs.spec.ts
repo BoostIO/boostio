@@ -45,7 +45,7 @@ describe('tachijs', () => {
     class SecondController {
       @httpGet('/')
       index() {
-        return 'Hello'
+        return 'Hello Second'
       }
     }
     const app = tachijs({
