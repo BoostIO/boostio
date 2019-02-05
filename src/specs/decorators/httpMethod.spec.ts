@@ -249,6 +249,37 @@ describe('httpMethod', () => {
     })
     expect(spy).toBeCalled()
   })
+
+  it('registers routes from top to bottom', async () => {
+    // Given
+    @controller('/')
+    class HomeController {
+      @httpMethod('get', '/test/new')
+      index() {
+        return 'Hello'
+      }
+      @httpMethod('get', '/test/:id')
+      indexWithId() {
+        return 'Hello-id'
+      }
+    }
+    const app = tachijs({
+      controllers: [HomeController]
+    })
+
+    // When
+    const response = await request(app).get('/test/new')
+    const response_id = await request(app).get('/test/23')
+    // Then
+    expect(response).toMatchObject({
+      status: 200,
+      text: 'Hello'
+    })
+    expect(response_id).toMatchObject({
+      status: 200,
+      text: 'Hello-id'
+    })
+  })
 })
 
 describe('httpGet', () => {
