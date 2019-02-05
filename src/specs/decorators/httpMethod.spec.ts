@@ -254,13 +254,14 @@ describe('httpMethod', () => {
     // Given
     @controller('/')
     class HomeController {
-      @httpMethod('get', '/test/new')
+      @httpMethod('get', '/')
       index() {
         return 'Hello'
       }
-      @httpMethod('get', '/test/:id')
-      indexWithId() {
-        return 'Hello-id'
+
+      @httpMethod('get', '/')
+      secondIndex() {
+        return 'Hello Second'
       }
     }
     const app = tachijs({
@@ -268,16 +269,12 @@ describe('httpMethod', () => {
     })
 
     // When
-    const response = await request(app).get('/test/new')
-    const response_id = await request(app).get('/test/23')
+    const response = await request(app).get('/')
+
     // Then
     expect(response).toMatchObject({
       status: 200,
       text: 'Hello'
-    })
-    expect(response_id).toMatchObject({
-      status: 200,
-      text: 'Hello-id'
     })
   })
 })
