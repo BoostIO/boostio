@@ -1,23 +1,16 @@
 {
   "name": "tachijs",
-  "version": "0.15.1",
+  "version": "1.0.0-2",
   "description": "Highly testable dead simple web server written in Typescript",
   "main": "dist",
-  "types": "types",
   "files": [
     "dist/**/*",
     "!dist/examples/**/*",
-    "!dist/specs/**/*",
-    "types/**/*",
-    "!types/examples/**/*",
-    "!types/specs/**/*",
-    "src/**/*",
-    "!src/examples/**/*",
-    "!src/specs/**/*"
+    "!dist/specs/**/*"
   ],
   "scripts": {
     "dev": "nodemon",
-    "build": "rimraf dist types && tsc",
+    "build": "rimraf dist && tsc",
     "format": "prettier --write 'src/**/*.ts'",
     "lint": "npm run lint:prettier && npm run lint:tslint",
     "lint:prettier": "prettier --check 'src/**/*.ts'",
@@ -58,7 +51,7 @@
     "nodemon": "^1.18.9",
     "prettier": "^1.16.4",
     "pug": "^2.0.3",
-    "reflect-metadata": "^0.1.12",
+    "reflect-metadata": "^0.1.13",
     "rimraf": "^2.6.3",
     "supertest": "^3.3.0",
     "ts-jest": "^23.10.5",
@@ -68,12 +61,6 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "class-transformer": "^0.2.0",
-    "class-transformer-validator": "^0.6.0",
-    "class-validator": "^0.9.1",
     "express": "^4.16.4"
-  },
-  "peerDependencies": {
-    "reflect-metadata": "^0.1.12"
   }
 }

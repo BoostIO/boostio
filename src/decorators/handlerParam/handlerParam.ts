@@ -1,7 +1,12 @@
-import { MetaKey } from '../../consts'
 import express from 'express'
 
-const metaKey = MetaKey.handlerParam
+const reflectMetadataIsAvailable =
+  typeof (Reflect as any).getMetadata !== 'undefined'
+
+const handlerParamMetaMap = new Map<
+  any,
+  Map<string, HandlerParamMeta<unknown>[]>
+>()
 
 export type HandlerParamSelector<T> = (
   req: express.Request,
@@ -13,7 +18,7 @@ export type HandlerParamSelector<T> = (
 export interface HandlerParamMeta<T> {
   index: number
   selector: HandlerParamSelector<T>
-  paramType: any
+  paramType?: any
 }
 
 export type HandlerParamMetaList = HandlerParamMeta<any>[]
@@ -22,17 +27,22 @@ export function getHandlerParamMetaList(
   controller: any,
   propertyKey: string
 ): HandlerParamMetaList {
-  const metaList = Reflect.getMetadata(metaKey, controller, propertyKey)
+  if (!handlerParamMetaMap.has(controller)) return []
+  const metaList = handlerParamMetaMap.get(controller)!.get(propertyKey)
   if (metaList == null) return []
   return metaList
 }
 
 export function setHandlerParamMetaList(
   controller: any,
-  meta: HandlerParamMetaList,
-  propertyKey: string
+  propertyKey: string,
+  meta: HandlerParamMetaList
 ): void {
-  Reflect.defineMetadata(metaKey, meta, controller, propertyKey)
+  if (!handlerParamMetaMap.has(controller)) {
+    handlerParamMetaMap.set(controller, new Map())
+  }
+  const propertyKeyMetaMap = handlerParamMetaMap.get(controller)!
+  propertyKeyMetaMap.set(propertyKey, meta)
 }
 
 export function handlerParam<T>(selector: HandlerParamSelector<T>) {
@@ -46,19 +56,23 @@ export function handlerParam<T>(selector: HandlerParamSelector<T>) {
       propertyKey
     )
 
+    const handlerParamMeta: HandlerParamMeta<T> = {
+      index,
+      selector
+    }
+    if (reflectMetadataIsAvailable) {
+      handlerParamMeta.paramType = (Reflect as any).getMetadata(
+        'design:paramtypes',
+        target,
+        propertyKey
+      )[index]
+    }
+
     const meta: HandlerParamMetaList = [
-      {
-        index,
-        selector,
-        paramType: Reflect.getMetadata(
-          'design:paramtypes',
-          target,
-          propertyKey
-        )[index]
-      },
-      ...previousHandlerParamList
+      ...previousHandlerParamList,
+      handlerParamMeta
     ]
 
-    setHandlerParamMetaList(target.constructor, meta, propertyKey)
+    setHandlerParamMetaList(target.constructor, propertyKey, meta)
   }
 }
